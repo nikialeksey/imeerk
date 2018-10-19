@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Add new ical calendar{% endblock %}
+
+{% block content %}
+<h2>Add new ical calendar</h2>
+<form method="post" action="{{ add_calendar_form }}">
+    <fieldset>
+        <label for="name">Name:</label>
+        <input name="name" type="text" id="name" required="required"/>
+        <label for="url">Ical url:</label>
+        <input name="url" type="url" id="url"/>
+        <button type="submit">Add</button>
+    </fieldset>
+</form>
+{% endblock %}

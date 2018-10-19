@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h2>Dashboard</h2>
+<p>
+    User identifier: <code>{{ email }}</code>
+</p>
+<h2>Calendars</h2>
+<p>
+    {{ calendars|safe }}
+    <a href="{{ add_new_calendar_url }}">Add new calendar</a>
+</p>
+{% endblock %}
