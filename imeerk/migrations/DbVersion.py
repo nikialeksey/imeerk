@@ -6,8 +6,7 @@ from sqlbuilder.smartsql.dialects.sqlite import compile
 
 class DbVersion:
 
-    def __init__(self, db_name, table='version'):
-        # type: (str, str) -> None
+    def __init__(self, db_name: str, table: str = 'version') -> None:
         self.db_name = db_name
         self.table = table
 
@@ -20,8 +19,7 @@ class DbVersion:
 
         return version
 
-    def update(self, number):
-        # type: (int) -> None
+    def update(self, number: int) -> None:
         with sqlite3.connect(self.db_name) as connection:
             self.__ensure_table(connection)
             connection.execute(
@@ -32,8 +30,7 @@ class DbVersion:
                 )
             )
 
-    def __ensure_table(self, connection):
-        # type: (Connection) -> None
+    def __ensure_table(self, connection: Connection) -> None:
         info = connection.execute(
             *compile(
                 Q(T.sqlite_master)

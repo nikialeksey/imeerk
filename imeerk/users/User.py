@@ -8,15 +8,13 @@ class User:
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
-    def calendars(self):
-        # type: () -> IcalCalendars
-        ...
+    def calendars(self) -> IcalCalendars:
+        pass
 
     @abc.abstractmethod
-    def chats(self):
-        # type: () -> SlackChats
-        ...
+    def chats(self) -> SlackChats:
+        pass
 
     @abc.abstractmethod
     def url(self) -> str:
-        ...
+        pass

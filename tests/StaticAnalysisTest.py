@@ -37,9 +37,7 @@ class StaticAnalysisTest(TestCase):
         self.assertEqual(result.total_errors, 0, "Found tests style errors or warnings.")
 
     def test_code_lint(self):
-        # self.__pylint('./imeerk')
-        # @todo #1:15m Uncomment test and fix code
-        pass
+        self.__pylint('./imeerk')
 
     def test_tests_lint(self):
         self.__pylint('./tests')
