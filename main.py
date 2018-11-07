@@ -1,5 +1,6 @@
 import configparser
 import json
+import base64
 
 import requests
 from bottle import Bottle, run, jinja2_view, jinja2_template, TEMPLATE_PATH, redirect, request, response
@@ -78,9 +79,41 @@ def dashboard(email):
     # type: (str) -> dict
     return {
         'email': email,
-        'calendars': DbUser(db, email).calendars().as_html(),
+        'calendars': DbUser(db, email).calendars().as_html(
+            lambda url: app.get_url('calendar', calendar=base64.b64encode(url.encode('utf-8')).decode('utf-8'))
+        ),
         'add_new_calendar_url': app.get_url('add_calendar', email=email)
     }
+
+
+@app.get('/calendars/ical/<calendar>', name='calendar')
+@jinja2_view('calendars/ical/ical.html')
+def calendar(calendar: str) -> dict:
+    token = request.get_cookie('token', 'guest')
+    return {
+        'calendar': DbSessions(db)
+        .user(token)
+        .calendars()
+        .calendar(base64.b64decode(calendar).decode('utf-8'))
+        .as_html(
+            lambda url: app.get_url('sync_calendar', calendar=base64.b64encode(url.encode('utf-8')).decode('utf-8'))
+        )
+    }
+
+
+@app.get('/calendars/ical/<calendar>/sync', name='sync_calendar')
+@jinja2_view('calendars/ical/sync.html')
+def sync_calendar(calendar: str) -> dict:
+    DbSessions(db)\
+        .user(
+            request.get_cookie('token', 'guest')
+        )\
+        .calendars()\
+        .calendar(
+            base64.b64decode(calendar).decode('utf-8')
+        )\
+        .sync()
+    return {}
 
 
 @app.get('/user/<email>/calendars/ical/add', name='add_calendar')

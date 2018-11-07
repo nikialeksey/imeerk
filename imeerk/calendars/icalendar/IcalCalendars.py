@@ -1,4 +1,7 @@
 import abc
+import typing
+
+from .IcalCalendar import IcalCalendar
 
 
 class IcalCalendars:
@@ -10,6 +13,9 @@ class IcalCalendars:
         pass
 
     @abc.abstractmethod
-    def as_html(self):
-        # type: () -> str
+    def calendar(self, url: str) -> IcalCalendar:
+        pass
+
+    @abc.abstractmethod
+    def as_html(self, url: typing.Callable[[str], str]) -> str:
         pass

@@ -1,9 +1,12 @@
 import sqlite3
+import typing
 
 from sqlbuilder.smartsql import Q, T, Result
 from sqlbuilder.smartsql.dialects.sqlite import compile
 
 from .IcalCalendars import IcalCalendars
+from .IcalCalendar import IcalCalendar
+from .DbIcalCalendar import DbIcalCalendar
 
 
 class DbIcalCalendars(IcalCalendars):
@@ -28,8 +31,10 @@ class DbIcalCalendars(IcalCalendars):
                 )
             )
 
-    def as_html(self):
-        # type: () -> str
+    def calendar(self, url: str) -> IcalCalendar:
+        return DbIcalCalendar(self.db_name, self.user, url)
+
+    def as_html(self, url: typing.Callable[[str], str]) -> str:
         result = ''
         with sqlite3.connect(self.db_name) as connection:
             rows = connection.execute(
@@ -41,8 +46,8 @@ class DbIcalCalendars(IcalCalendars):
             result = '<ul>{0}</ul>'.format(
                 '\n'.join(
                     map(
-                        lambda row: '<li><strong>{0}</strong>: <a href="{1}">{1}</a></li>'.format(
-                            row[2], row[1]
+                        lambda row: '<li><a href="{1}">{0}</a></li>'.format(
+                            row[2], url(row[1])
                         ),
                         rows
                     )
