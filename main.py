@@ -18,6 +18,7 @@ url = config.get('imeerk', 'url')
 host = config.get('imeerk', 'host')
 port = int(config.get('imeerk', 'port'))
 db = config.get('imeerk', 'dbname')
+store_dir = config.get('imeerk', 'store')
 client_id = config.get('slack-app', 'client_id')
 client_secret = config.get('slack-app', 'client_secret')
 scope = ["identify", "users.profile:write", "users.profile:read"]
@@ -50,7 +51,7 @@ def slack_login():
             client_id,
             client_secret,
             code,
-            "/slack/login".format(url)
+            "{0}/slack/login".format(url)
         )
     )
     slack_token = result.json()['access_token']
@@ -112,7 +113,7 @@ def sync_calendar(calendar: str) -> dict:
         .calendar(
             base64.b64decode(calendar).decode('utf-8')
         )\
-        .sync()
+        .sync(store_dir)
     return {}
 
 

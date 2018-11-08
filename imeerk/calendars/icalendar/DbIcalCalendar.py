@@ -1,10 +1,18 @@
 import datetime
 import sqlite3
+import time
 import typing
+import urllib.parse
+from os import makedirs
+from os import path
 
-from sqlbuilder.smartsql import Q, T
+from dateutil import tz
+from meerk.calendar import IcsCalendar
+from meerk.intervals import SimpleCalEventsIntervals
+from sqlbuilder.smartsql import Q, T, Result
 from sqlbuilder.smartsql.dialects.sqlite import compile
 
+from .FileTimeIntervals import FileTimeIntervals
 from .IcalCalendar import IcalCalendar
 
 
@@ -48,6 +56,37 @@ class DbIcalCalendar(IcalCalendar):
 
         return result
 
-    def sync(self) -> None:
-        # @todo #5:30m Add sync calendar into user cash
-        pass
+    def sync(self, folder: str) -> None:
+        with sqlite3.connect(self.db_name) as connection:
+            row = connection.execute(
+                *compile(
+                    Q(T.icalendar).fields('*').where(
+                        T.icalendar.user == self.user and
+                        T.icalendar.url == self.url
+                    )
+                )
+            ).fetchone()
+            url = row[1]
+
+            sync_dir = path.join(folder, self.user, 'ics')
+            if not path.exists(sync_dir):
+                makedirs(sync_dir)
+
+            IcsCalendar(
+                url,
+                SimpleCalEventsIntervals(
+                    tz.tzlocal(),
+                    FileTimeIntervals(path.join(sync_dir, urllib.parse.quote(self.url, safe='')))
+                )
+            ).sync()
+
+            connection.execute(
+                *Q(
+                    T.icalendar, result=Result(compile=compile)
+                ).where(
+                    T.icalendar.user == self.user and
+                    T.icalendar.url == self.url
+                ).update({
+                    T.icalendar.sync_time: int(round(time.time() * 1000))
+                })
+            )

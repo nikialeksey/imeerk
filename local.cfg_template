@@ -3,6 +3,7 @@ url =
 host =
 port =
 dbname =
+store =
 
 [slack-app]
 client_id =

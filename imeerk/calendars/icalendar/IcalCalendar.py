@@ -8,5 +8,5 @@ class IcalCalendar(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def sync(self) -> None:
+    def sync(self, folder: str) -> None:
         pass
