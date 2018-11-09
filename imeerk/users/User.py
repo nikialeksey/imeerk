@@ -1,7 +1,7 @@
 import abc
 
 from imeerk.calendars.icalendar import IcalCalendars
-from imeerk.chats.slack import SlackChats
+from imeerk.notifications.slack import SlackNotifications
 
 
 class User:
@@ -12,7 +12,7 @@ class User:
         pass
 
     @abc.abstractmethod
-    def chats(self) -> SlackChats:
+    def notifications(self) -> SlackNotifications:
         pass
 
     @abc.abstractmethod

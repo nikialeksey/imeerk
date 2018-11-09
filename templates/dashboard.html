@@ -4,11 +4,16 @@
 {% block content %}
 <h2>Dashboard</h2>
 <p>
-    User identifier: <code>{{ email }}</code>
+    <strong>User identifier:</strong> <code>{{ email }}</code>
 </p>
 <h2>Calendars</h2>
 <p>
     {{ calendars|safe }}
     <a href="{{ add_new_calendar_url }}">Add new calendar</a>
+</p>
+<h2>Notifications</h2>
+<p>
+    {{ notifications|safe }}
+    <a href="{{ add_new_notification_url }}">Add new notification channel</a>
 </p>
 {% endblock %}

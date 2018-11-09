@@ -64,7 +64,7 @@ def slack_login():
         users = DbUsers(db)
         if not users.contains(email):
             users.add(email)
-            DbUser(db, email).chats().add(
+            DbUser(db, email).notifications().add(
                 team=team,
                 token=slack_token,
                 profile=json.dumps(result['profile'])
@@ -78,13 +78,33 @@ def slack_login():
 @jinja2_view('dashboard.html')
 def dashboard(email):
     # type: (str) -> dict
+    user = DbUser(db, email)
     return {
         'email': email,
-        'calendars': DbUser(db, email).calendars().as_html(
+        'calendars': user.calendars().as_html(
             lambda url: app.get_url('calendar', calendar=base64.b64encode(url.encode('utf-8')).decode('utf-8'))
         ),
-        'add_new_calendar_url': app.get_url('add_calendar', email=email)
+        'add_new_calendar_url': app.get_url('add_calendar', email=email),
+        'notifications': user.notifications().as_html(),
+        'add_new_notification_url': app.get_url('add_notification')
     }
+
+
+@app.get('/notifications/slack/add', name='add_notification')
+@jinja2_view('notifications/slack/add.html')
+def add_slack_notification():
+    return {
+        'add_notification_form': app.get_url('add_notification_form')
+    }
+
+
+@app.post('/notifications/slack/add')
+def add_slack_notification():
+    DbSessions(db)\
+        .user(request.get_cookie('token', 'guest'))\
+        .notifications()\
+    # @todo #9:30m Add notification to user notifications
+    return redirect('/user/' + email)
 
 
 @app.get('/calendars/ical/<calendar>', name='calendar')

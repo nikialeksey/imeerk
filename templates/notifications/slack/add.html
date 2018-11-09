@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Add new slack channel{% endblock %}
+
+{% block content %}
+<h2>Add new slack channel</h2>
+<form method="post" action="{{ add_notification_form }}">
+    <fieldset>
+        <label for="token">Token:</label>
+        <input name="token" type="text" id="token" required="required"/>
+        <label for="busy-text">Busy text:</label>
+        <input name="busy-text" type="text" id="busy-text"/>
+        <label for="available-text">Available text:</label>
+        <input name="available-text" type="text" id="available-text"/>
+        <button type="submit">Add</button>
+    </fieldset>
+</form>
+{% endblock %}
