@@ -10,6 +10,7 @@ from imeerk.migrations import MigrationInit
 from imeerk.sessions import DbSessions
 from imeerk.users import DbUser
 from imeerk.users import DbUsers
+from imeerk.periodic import ImeerkPeriodic
 
 config = configparser.RawConfigParser()
 config.read('local.cfg')
@@ -157,3 +158,4 @@ def add_calendar_form() -> str:
 if __name__ == "__main__":
     MigrationInit(db).apply()
     run(app, host=host, port=port)
+    ImeerkPeriodic().run()
