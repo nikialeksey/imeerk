@@ -19,3 +19,6 @@ class DbUser(User):
 
     def url(self) -> str:
         return '/user/' + self.email
+
+    def as_html(self) -> str:
+        return self.email

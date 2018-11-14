@@ -3,6 +3,8 @@ import sqlite3
 from sqlbuilder.smartsql import Q, T, Result
 from sqlbuilder.smartsql.dialects.sqlite import compile
 
+from imeerk.notifications.slack import SlackNotification
+from .DbSlackNotification import DbSlackNotification
 from .SlackNotifications import SlackNotifications
 
 
@@ -30,6 +32,9 @@ class DbSlackNotifications(SlackNotifications):
                     }
                 )
             )
+
+    def notification(self, token: str) -> SlackNotification:
+        return DbSlackNotification(self.db_name, self.user, token)
 
     def as_html(self) -> str:
         result = ''

@@ -40,7 +40,7 @@ def index():
             )
         )
     else:
-        return redirect(DbSessions(db).user(token).url())
+        return redirect('/dashboard')
 
 
 @app.route("/slack/login")
@@ -74,17 +74,16 @@ def slack_login():
         return redirect('/')
 
 
-@app.get('/user/<email>')
+@app.get('/dashboard')
 @jinja2_view('dashboard.html')
-def dashboard(email):
-    # type: (str) -> dict
-    user = DbUser(db, email)
+def dashboard() -> dict:
+    user = DbSessions(db).user(request.get_cookie('token', 'guest'))
     return {
-        'email': email,
+        'email': user.as_html(),
         'calendars': user.calendars().as_html(
             lambda url: app.get_url('calendar', calendar=base64.b64encode(url.encode('utf-8')).decode('utf-8'))
         ),
-        'add_new_calendar_url': app.get_url('add_calendar', email=email),
+        'add_new_calendar_url': app.get_url('add_calendar'),
         'notifications': user.notifications().as_html(),
         'add_new_notification_url': app.get_url('add_notification')
     }
@@ -98,17 +97,19 @@ def add_slack_notification():
     }
 
 
-@app.post('/notifications/slack/add')
+@app.post('/notifications/slack/add', name='add_notification_form')
 def add_slack_notification():
-    DbSessions(db)\
-        .user(request.get_cookie('token', 'guest'))\
-        .notifications()\
-    # @todo #9:30m Add notification to user notifications
-    return redirect('/user/' + email)
+    slack_token = request.forms['token']
+    notifications = DbSessions(db).user(request.get_cookie('token', 'guest')).notifications()
+    notifications.add('', slack_token, '')
+    notification = notifications.notification(slack_token)
+    notification.update_busy(request.forms['busy-text'], request.forms['busy-emoji'])
+    notification.update_available(request.forms['available-text'], request.forms['available-emoji'])
+    return redirect('/dashboard')
 
 
-@app.get('/calendars/ical/<calendar>', name='calendar')
-@jinja2_view('calendars/ical/ical.html')
+@app.get('/calendars/ics/<calendar>', name='calendar')
+@jinja2_view('calendars/ics/ics.html')
 def calendar(calendar: str) -> dict:
     token = request.get_cookie('token', 'guest')
     return {
@@ -122,8 +123,7 @@ def calendar(calendar: str) -> dict:
     }
 
 
-@app.get('/calendars/ical/<calendar>/sync', name='sync_calendar')
-@jinja2_view('calendars/ical/sync.html')
+@app.get('/calendars/ics/<calendar>/sync', name='sync_calendar')
 def sync_calendar(calendar: str) -> dict:
     DbSessions(db)\
         .user(
@@ -134,24 +134,24 @@ def sync_calendar(calendar: str) -> dict:
             base64.b64decode(calendar).decode('utf-8')
         )\
         .sync(store_dir)
-    return {}
+    return redirect(app.get_url('calendar', calendar=calendar))
 
 
-@app.get('/user/<email>/calendars/ical/add', name='add_calendar')
-@jinja2_view('calendars/ical/add.html')
-def add_calendar(email):
-    # type: (str) -> dict
+@app.get('/calendars/ics/add', name='add_calendar')
+@jinja2_view('calendars/ics/add.html')
+def add_calendar() -> dict:
     return {
-        'email': email,
-        'add_calendar_form': app.get_url('add_calendar_form', email=email)
+        'add_calendar_form': app.get_url('add_calendar_form')
     }
 
 
-@app.post('/user/<email>/calendars/ical/add', name='add_calendar_form')
-def add_calendar_form(email):
-    # type: (str) -> str
-    DbUser(db, email).calendars().add(request.forms['url'], request.forms['name'])
-    return redirect('/user/' + email)
+@app.post('/calendars/ics/add', name='add_calendar_form')
+def add_calendar_form() -> str:
+    DbSessions(db)\
+        .user(request.get_cookie('token', 'guest'))\
+        .calendars()\
+        .add(request.forms['url'], request.forms['name'])
+    return redirect('/dashboard')
 
 
 if __name__ == "__main__":

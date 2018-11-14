@@ -18,3 +18,7 @@ class User:
     @abc.abstractmethod
     def url(self) -> str:
         pass
+
+    @abc.abstractmethod
+    def as_html(self) -> str:
+        pass

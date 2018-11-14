@@ -1,11 +1,16 @@
 import abc
 
+from .SlackNotification import SlackNotification
+
 
 class SlackNotifications(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
-    def add(self, team, token, profile):
-        # type: (str, str, str) -> None
+    def add(self, team: str, token: str, profile: str) -> None:
+        pass
+
+    @abc.abstractmethod
+    def notification(self, token: str) -> SlackNotification:
         pass
 
     @abc.abstractmethod

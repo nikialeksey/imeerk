@@ -35,7 +35,7 @@ class MigrationInit(Migration):
                         busy_emoji TEXT NOT NULL,
                         available_text TEXT NOT NULL,
                         available_emoji TEXT NOT NULL,
-                        PRIMARY KEY (user, team),
+                        PRIMARY KEY (user, token),
                         FOREIGN KEY (user) REFERENCES user (email) ON DELETE CASCADE
                     )
                     """
