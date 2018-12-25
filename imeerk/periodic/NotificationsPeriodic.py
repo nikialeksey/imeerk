@@ -1,7 +1,7 @@
 from .Periodic import Periodic
 
 
-class NotificationsPeriodic(Periodic):
+class NotificationsPeriodic (Periodic):
 
     def __init__(self):
         pass
